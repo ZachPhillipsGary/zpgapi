@@ -1,6 +1,6 @@
 package main
 
-import "github.com/zachphillipsgary/zpgapi/api"
+import api "github.com/zachphillipsgary/zpgapi"
 
 func main() {
 	api.Run()

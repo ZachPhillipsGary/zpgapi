@@ -12,7 +12,6 @@ import (
 	"github.com/zachphillipsgary/zpgapi/auth"
 	"github.com/zachphillipsgary/zpgapi/models"
 	"github.com/zachphillipsgary/zpgapi/responses"
-	"github.com/zachphillipsgary/zpgapi/utils/formaterror"
 )
 
 func (server *Server) CreateUser(w http.ResponseWriter, r *http.Request) {
@@ -37,9 +36,7 @@ func (server *Server) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 
-		formattedError := formaterror.FormatError(err.Error())
-
-		responses.ERROR(w, http.StatusInternalServerError, formattedError)
+		panic(err)
 		return
 	}
 	w.Header().Set("Location", fmt.Sprintf("%s%s/%d", r.Host, r.RequestURI, userCreated.ID))

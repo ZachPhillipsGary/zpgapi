@@ -7,7 +7,7 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/zachphillipsgary/zpgapi/controllers"
-	"github.com/zpgapi/api/seed"
+	"github.com/zpgapi/seed"
 )
 
 var server = controllers.Server{}

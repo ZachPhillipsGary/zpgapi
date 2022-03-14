@@ -3,7 +3,7 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/zachphillipsgary/fullstack/zpgapi/responses"
+	"github.com/zachphillipsgary/zpgapi/responses"
 )
 
 func (server *Server) Home(w http.ResponseWriter, r *http.Request) {

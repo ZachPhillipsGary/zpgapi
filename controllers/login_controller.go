@@ -8,7 +8,6 @@ import (
 	"github.com/zachphillipsgary/zpgapi/auth"
 	"github.com/zachphillipsgary/zpgapi/models"
 	"github.com/zachphillipsgary/zpgapi/responses"
-	"github.com/zachphillipsgary/zpgapi/utils/formaterror"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -33,11 +32,10 @@ func (server *Server) Login(w http.ResponseWriter, r *http.Request) {
 	}
 	token, err := server.SignIn(user.Email, user.Password)
 	if err != nil {
-		formattedError := formaterror.FormatError(err.Error())
-		responses.ERROR(w, http.StatusUnprocessableEntity, formattedError)
+		panic(err)
 		return
 	}
-	responses.JSON(w, http.StatusOK, token)
+	responses.JSON(github.com/zpgapi/api/seed:w, http.StatusOK, token)
 }
 
 func (server *Server) SignIn(email, password string) (string, error) {
