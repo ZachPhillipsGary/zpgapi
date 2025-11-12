@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'apps.languages',
     'apps.learning_plans',
     'apps.users',
+    'apps.ai_prompts',
+    'apps.spaced_repetition',
 ]
 
 MIDDLEWARE = [

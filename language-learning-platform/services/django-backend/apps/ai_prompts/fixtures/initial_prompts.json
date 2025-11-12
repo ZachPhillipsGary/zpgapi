@@ -1,0 +1,405 @@
+[
+  {
+    "model": "ai_prompts.aiprompttemplate",
+    "pk": "00000000-0000-0001-0000-000000000001",
+    "fields": {
+      "name": "Story Generation",
+      "prompt_type": "story_generation",
+      "description": "Generate educational stories that teach language concepts",
+      "available_variables": ["concept_title", "concept_description", "language_name", "difficulty"],
+      "is_active": true,
+      "created_by": "system",
+      "created_at": "2025-01-12T00:00:00Z",
+      "updated_at": "2025-01-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "ai_prompts.aipromptversion",
+    "pk": "00000000-0000-0002-0000-000000000001",
+    "fields": {
+      "prompt_template": "00000000-0000-0001-0000-000000000001",
+      "version_number": 1,
+      "version_name": "Initial Version",
+      "prompt_text": "Create a short story in {language_name} that teaches this concept:\n\nConcept: {concept_title}\nDescription: {concept_description}\nDifficulty Level: {difficulty}/10\n\nRequirements:\n1. Story length: 150-300 words\n2. Use vocabulary appropriate for difficulty level {difficulty}\n3. Incorporate the concept naturally into the story\n4. Include dialogue if appropriate\n5. Make it engaging and memorable\n\nFormat as JSON with:\n- title: Story title\n- content: The story text\n- vocabulary: Array of key words used (with translations)\n- reading_time: Estimated reading time in minutes",
+      "is_active": true,
+      "is_archived": false,
+      "usage_count": 0,
+      "change_notes": "Initial prompt for story generation",
+      "created_by": "system",
+      "created_at": "2025-01-12T00:00:00Z",
+      "updated_at": "2025-01-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "ai_prompts.aiprompttemplate",
+    "pk": "00000000-0000-0001-0000-000000000002",
+    "fields": {
+      "name": "Quiz Generation",
+      "prompt_type": "quiz_generation",
+      "description": "Generate quizzes to test understanding of language concepts",
+      "available_variables": ["concept_title", "concept_description", "language_name", "question_count"],
+      "is_active": true,
+      "created_by": "system",
+      "created_at": "2025-01-12T00:00:00Z",
+      "updated_at": "2025-01-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "ai_prompts.aipromptversion",
+    "pk": "00000000-0000-0002-0000-000000000002",
+    "fields": {
+      "prompt_template": "00000000-0000-0001-0000-000000000002",
+      "version_number": 1,
+      "version_name": "Initial Version",
+      "prompt_text": "Create a quiz in {language_name} to test this concept:\n\nConcept: {concept_title}\nDescription: {concept_description}\n\nGenerate {question_count} questions with these types:\n- Multiple choice\n- Fill in the blank\n- Translation\n- True/false\n\nFormat as JSON array with each question having:\n- type: Question type\n- question: The question text\n- options: Array of options (for multiple choice)\n- correct_answer: The correct answer\n- explanation: Why this is correct",
+      "is_active": true,
+      "is_archived": false,
+      "usage_count": 0,
+      "change_notes": "Initial prompt for quiz generation",
+      "created_by": "system",
+      "created_at": "2025-01-12T00:00:00Z",
+      "updated_at": "2025-01-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "ai_prompts.aiprompttemplate",
+    "pk": "00000000-0000-0001-0000-000000000003",
+    "fields": {
+      "name": "Flashcard Generation",
+      "prompt_type": "flashcard_generation",
+      "description": "Generate flashcards for vocabulary learning",
+      "available_variables": ["concept_title", "words_text", "count"],
+      "is_active": true,
+      "created_by": "system",
+      "created_at": "2025-01-12T00:00:00Z",
+      "updated_at": "2025-01-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "ai_prompts.aipromptversion",
+    "pk": "00000000-0000-0002-0000-000000000003",
+    "fields": {
+      "prompt_template": "00000000-0000-0001-0000-000000000003",
+      "version_number": 1,
+      "version_name": "Initial Version",
+      "prompt_text": "Create {count} flashcards for learning these words:\n\nConcept: {concept_title}\nWords:\n{words_text}\n\nFor each word, create:\n- front: The word in the target language\n- back: Translation, pronunciation, example sentence\n- hint: A helpful memory aid\n\nFormat as JSON array.",
+      "is_active": true,
+      "is_archived": false,
+      "usage_count": 0,
+      "change_notes": "Initial prompt for flashcard generation",
+      "created_by": "system",
+      "created_at": "2025-01-12T00:00:00Z",
+      "updated_at": "2025-01-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "ai_prompts.aiprompttemplate",
+    "pk": "00000000-0000-0001-0000-000000000004",
+    "fields": {
+      "name": "Podcast Script - Introduction",
+      "prompt_type": "podcast_intro",
+      "description": "Generate intro segment for personalized podcasts",
+      "available_variables": ["segment_type", "concept_title", "concept_description", "difficulty", "words"],
+      "is_active": true,
+      "created_by": "system",
+      "created_at": "2025-01-12T00:00:00Z",
+      "updated_at": "2025-01-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "ai_prompts.aipromptversion",
+    "pk": "00000000-0000-0002-0000-000000000004",
+    "fields": {
+      "prompt_template": "00000000-0000-0001-0000-000000000004",
+      "version_number": 1,
+      "version_name": "Initial Version",
+      "prompt_text": "You are a language learning podcast script writer. Create an engaging {segment_type} segment.\n\nConcept: {concept_title}\nDescription: {concept_description}\nDifficulty Level: {difficulty}/10\nWords to include: {words}\n\nCreate a script that:\n1. Is conversational and engaging\n2. Explains the concept clearly\n3. Includes examples and context\n4. Uses the target vocabulary naturally\n5. Is appropriate for the difficulty level\n6. Lasts approximately 2-3 minutes when spoken\n\nFormat: Write the script as natural dialogue between a friendly tutor and a learner.",
+      "is_active": true,
+      "is_archived": false,
+      "usage_count": 0,
+      "change_notes": "Initial prompt for podcast intro segment",
+      "created_by": "system",
+      "created_at": "2025-01-12T00:00:00Z",
+      "updated_at": "2025-01-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "ai_prompts.aiprompttemplate",
+    "pk": "00000000-0000-0001-0000-000000000005",
+    "fields": {
+      "name": "Podcast Script - Vocabulary",
+      "prompt_type": "podcast_vocab",
+      "description": "Generate vocabulary segment for personalized podcasts",
+      "available_variables": ["segment_type", "concept_title", "concept_description", "difficulty", "words"],
+      "is_active": true,
+      "created_by": "system",
+      "created_at": "2025-01-12T00:00:00Z",
+      "updated_at": "2025-01-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "ai_prompts.aipromptversion",
+    "pk": "00000000-0000-0002-0000-000000000005",
+    "fields": {
+      "prompt_template": "00000000-0000-0001-0000-000000000005",
+      "version_number": 1,
+      "version_name": "Initial Version",
+      "prompt_text": "You are a language learning podcast script writer. Create an engaging {segment_type} segment.\n\nConcept: {concept_title}\nDescription: {concept_description}\nDifficulty Level: {difficulty}/10\nWords to include: {words}\n\nCreate a script that:\n1. Is conversational and engaging\n2. Explains the concept clearly\n3. Includes examples and context\n4. Uses the target vocabulary naturally\n5. Is appropriate for the difficulty level\n6. Lasts approximately 2-3 minutes when spoken\n\nFormat: Write the script as natural dialogue between a friendly tutor and a learner.",
+      "is_active": true,
+      "is_archived": false,
+      "usage_count": 0,
+      "change_notes": "Initial prompt for podcast vocabulary segment",
+      "created_by": "system",
+      "created_at": "2025-01-12T00:00:00Z",
+      "updated_at": "2025-01-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "ai_prompts.aiprompttemplate",
+    "pk": "00000000-0000-0001-0000-000000000006",
+    "fields": {
+      "name": "Podcast Script - Dialogue",
+      "prompt_type": "podcast_dialogue",
+      "description": "Generate dialogue segment for personalized podcasts",
+      "available_variables": ["segment_type", "concept_title", "concept_description", "difficulty", "words"],
+      "is_active": true,
+      "created_by": "system",
+      "created_at": "2025-01-12T00:00:00Z",
+      "updated_at": "2025-01-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "ai_prompts.aipromptversion",
+    "pk": "00000000-0000-0002-0000-000000000006",
+    "fields": {
+      "prompt_template": "00000000-0000-0001-0000-000000000006",
+      "version_number": 1,
+      "version_name": "Initial Version",
+      "prompt_text": "You are a language learning podcast script writer. Create an engaging {segment_type} segment.\n\nConcept: {concept_title}\nDescription: {concept_description}\nDifficulty Level: {difficulty}/10\nWords to include: {words}\n\nCreate a script that:\n1. Is conversational and engaging\n2. Explains the concept clearly\n3. Includes examples and context\n4. Uses the target vocabulary naturally\n5. Is appropriate for the difficulty level\n6. Lasts approximately 2-3 minutes when spoken\n\nFormat: Write the script as natural dialogue between a friendly tutor and a learner.",
+      "is_active": true,
+      "is_archived": false,
+      "usage_count": 0,
+      "change_notes": "Initial prompt for podcast dialogue segment",
+      "created_by": "system",
+      "created_at": "2025-01-12T00:00:00Z",
+      "updated_at": "2025-01-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "ai_prompts.aiprompttemplate",
+    "pk": "00000000-0000-0001-0000-000000000007",
+    "fields": {
+      "name": "Podcast Script - Grammar",
+      "prompt_type": "podcast_grammar",
+      "description": "Generate grammar segment for personalized podcasts",
+      "available_variables": ["segment_type", "concept_title", "concept_description", "difficulty", "words"],
+      "is_active": true,
+      "created_by": "system",
+      "created_at": "2025-01-12T00:00:00Z",
+      "updated_at": "2025-01-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "ai_prompts.aipromptversion",
+    "pk": "00000000-0000-0002-0000-000000000007",
+    "fields": {
+      "prompt_template": "00000000-0000-0001-0000-000000000007",
+      "version_number": 1,
+      "version_name": "Initial Version",
+      "prompt_text": "You are a language learning podcast script writer. Create an engaging {segment_type} segment.\n\nConcept: {concept_title}\nDescription: {concept_description}\nDifficulty Level: {difficulty}/10\nWords to include: {words}\n\nCreate a script that:\n1. Is conversational and engaging\n2. Explains the concept clearly\n3. Includes examples and context\n4. Uses the target vocabulary naturally\n5. Is appropriate for the difficulty level\n6. Lasts approximately 2-3 minutes when spoken\n\nFormat: Write the script as natural dialogue between a friendly tutor and a learner.",
+      "is_active": true,
+      "is_archived": false,
+      "usage_count": 0,
+      "change_notes": "Initial prompt for podcast grammar segment",
+      "created_by": "system",
+      "created_at": "2025-01-12T00:00:00Z",
+      "updated_at": "2025-01-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "ai_prompts.aiprompttemplate",
+    "pk": "00000000-0000-0001-0000-000000000008",
+    "fields": {
+      "name": "Podcast Script - Story",
+      "prompt_type": "podcast_story",
+      "description": "Generate story segment for personalized podcasts",
+      "available_variables": ["segment_type", "concept_title", "concept_description", "difficulty", "words"],
+      "is_active": true,
+      "created_by": "system",
+      "created_at": "2025-01-12T00:00:00Z",
+      "updated_at": "2025-01-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "ai_prompts.aipromptversion",
+    "pk": "00000000-0000-0002-0000-000000000008",
+    "fields": {
+      "prompt_template": "00000000-0000-0001-0000-000000000008",
+      "version_number": 1,
+      "version_name": "Initial Version",
+      "prompt_text": "You are a language learning podcast script writer. Create an engaging {segment_type} segment.\n\nConcept: {concept_title}\nDescription: {concept_description}\nDifficulty Level: {difficulty}/10\nWords to include: {words}\n\nCreate a script that:\n1. Is conversational and engaging\n2. Explains the concept clearly\n3. Includes examples and context\n4. Uses the target vocabulary naturally\n5. Is appropriate for the difficulty level\n6. Lasts approximately 2-3 minutes when spoken\n\nFormat: Write the script as natural dialogue between a friendly tutor and a learner.",
+      "is_active": true,
+      "is_archived": false,
+      "usage_count": 0,
+      "change_notes": "Initial prompt for podcast story segment",
+      "created_by": "system",
+      "created_at": "2025-01-12T00:00:00Z",
+      "updated_at": "2025-01-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "ai_prompts.aiprompttemplate",
+    "pk": "00000000-0000-0001-0000-000000000009",
+    "fields": {
+      "name": "Podcast Script - Quiz",
+      "prompt_type": "podcast_quiz",
+      "description": "Generate quiz segment for personalized podcasts",
+      "available_variables": ["segment_type", "concept_title", "concept_description", "difficulty", "words"],
+      "is_active": true,
+      "created_by": "system",
+      "created_at": "2025-01-12T00:00:00Z",
+      "updated_at": "2025-01-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "ai_prompts.aipromptversion",
+    "pk": "00000000-0000-0002-0000-000000000009",
+    "fields": {
+      "prompt_template": "00000000-0000-0001-0000-000000000009",
+      "version_number": 1,
+      "version_name": "Initial Version",
+      "prompt_text": "You are a language learning podcast script writer. Create an engaging {segment_type} segment.\n\nConcept: {concept_title}\nDescription: {concept_description}\nDifficulty Level: {difficulty}/10\nWords to include: {words}\n\nCreate a script that:\n1. Is conversational and engaging\n2. Explains the concept clearly\n3. Includes examples and context\n4. Uses the target vocabulary naturally\n5. Is appropriate for the difficulty level\n6. Lasts approximately 2-3 minutes when spoken\n\nFormat: Write the script as natural dialogue between a friendly tutor and a learner.",
+      "is_active": true,
+      "is_archived": false,
+      "usage_count": 0,
+      "change_notes": "Initial prompt for podcast quiz segment",
+      "created_by": "system",
+      "created_at": "2025-01-12T00:00:00Z",
+      "updated_at": "2025-01-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "ai_prompts.aiprompttemplate",
+    "pk": "00000000-0000-0001-0000-000000000010",
+    "fields": {
+      "name": "Podcast Script - Outro",
+      "prompt_type": "podcast_outro",
+      "description": "Generate outro segment for personalized podcasts",
+      "available_variables": ["segment_type", "concept_title", "concept_description", "difficulty", "words"],
+      "is_active": true,
+      "created_by": "system",
+      "created_at": "2025-01-12T00:00:00Z",
+      "updated_at": "2025-01-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "ai_prompts.aipromptversion",
+    "pk": "00000000-0000-0002-0000-000000000010",
+    "fields": {
+      "prompt_template": "00000000-0000-0001-0000-000000000010",
+      "version_number": 1,
+      "version_name": "Initial Version",
+      "prompt_text": "You are a language learning podcast script writer. Create an engaging {segment_type} segment.\n\nConcept: {concept_title}\nDescription: {concept_description}\nDifficulty Level: {difficulty}/10\nWords to include: {words}\n\nCreate a script that:\n1. Is conversational and engaging\n2. Explains the concept clearly\n3. Includes examples and context\n4. Uses the target vocabulary naturally\n5. Is appropriate for the difficulty level\n6. Lasts approximately 2-3 minutes when spoken\n\nFormat: Write the script as natural dialogue between a friendly tutor and a learner.",
+      "is_active": true,
+      "is_archived": false,
+      "usage_count": 0,
+      "change_notes": "Initial prompt for podcast outro segment",
+      "created_by": "system",
+      "created_at": "2025-01-12T00:00:00Z",
+      "updated_at": "2025-01-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "ai_prompts.aiprompttemplate",
+    "pk": "00000000-0000-0001-0000-000000000011",
+    "fields": {
+      "name": "Tutoring System Prompt",
+      "prompt_type": "tutoring_system",
+      "description": "Base system prompt for real-time tutoring sessions",
+      "available_variables": ["language_name", "session_type", "concept_title", "concept_description"],
+      "is_active": true,
+      "created_by": "system",
+      "created_at": "2025-01-12T00:00:00Z",
+      "updated_at": "2025-01-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "ai_prompts.aipromptversion",
+    "pk": "00000000-0000-0002-0000-000000000011",
+    "fields": {
+      "prompt_template": "00000000-0000-0001-0000-000000000011",
+      "version_number": 1,
+      "version_name": "Initial Version",
+      "prompt_text": "You are an expert {language_name} language tutor. Your goal is to help the student improve their {language_name} skills through natural conversation.\n\nGuidelines:\n1. Speak clearly and at an appropriate pace for the student's level\n2. Provide corrections gently and explain why\n3. Encourage the student and celebrate their progress\n4. Ask follow-up questions to keep the conversation flowing\n5. Use simple vocabulary and grammar for beginners, more complex for advanced students\n6. Focus on pronunciation, grammar, and natural expression",
+      "is_active": true,
+      "is_archived": false,
+      "usage_count": 0,
+      "change_notes": "Initial prompt for tutoring system",
+      "created_by": "system",
+      "created_at": "2025-01-12T00:00:00Z",
+      "updated_at": "2025-01-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "ai_prompts.aiprompttemplate",
+    "pk": "00000000-0000-0001-0000-000000000012",
+    "fields": {
+      "name": "Tutoring Context Prompt",
+      "prompt_type": "tutoring_context",
+      "description": "Additional context for tutoring sessions based on focus area",
+      "available_variables": ["focus_area", "concept_title", "concept_description"],
+      "is_active": true,
+      "created_by": "system",
+      "created_at": "2025-01-12T00:00:00Z",
+      "updated_at": "2025-01-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "ai_prompts.aipromptversion",
+    "pk": "00000000-0000-0002-0000-000000000012",
+    "fields": {
+      "prompt_template": "00000000-0000-0001-0000-000000000012",
+      "version_number": 1,
+      "version_name": "Initial Version",
+      "prompt_text": "Special focus: {focus_area}\n\nCurrent lesson focus: {concept_title}\nDescription: {concept_description}\n\nFocus this session on helping the student practice and understand this concept.",
+      "is_active": true,
+      "is_archived": false,
+      "usage_count": 0,
+      "change_notes": "Initial prompt for tutoring context",
+      "created_by": "system",
+      "created_at": "2025-01-12T00:00:00Z",
+      "updated_at": "2025-01-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "ai_prompts.aiprompttemplate",
+    "pk": "00000000-0000-0001-0000-000000000013",
+    "fields": {
+      "name": "Multimodal Analysis",
+      "prompt_type": "multimodal_analysis",
+      "description": "Analyze images/videos for language learning",
+      "available_variables": ["language_code", "analysis_prompt"],
+      "is_active": true,
+      "created_by": "system",
+      "created_at": "2025-01-12T00:00:00Z",
+      "updated_at": "2025-01-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "ai_prompts.aipromptversion",
+    "pk": "00000000-0000-0002-0000-000000000013",
+    "fields": {
+      "prompt_template": "00000000-0000-0001-0000-000000000013",
+      "version_number": 1,
+      "version_name": "Initial Version",
+      "prompt_text": "Language: {language_code}\n{analysis_prompt}",
+      "is_active": true,
+      "is_archived": false,
+      "usage_count": 0,
+      "change_notes": "Initial prompt for multimodal analysis",
+      "created_by": "system",
+      "created_at": "2025-01-12T00:00:00Z",
+      "updated_at": "2025-01-12T00:00:00Z"
+    }
+  }
+]

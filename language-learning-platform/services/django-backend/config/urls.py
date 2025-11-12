@@ -25,6 +25,9 @@ urlpatterns = [
 
     # Auth endpoints
     path('api/v1/auth/', include('apps.users.urls')),
+
+    # AI Prompts Management
+    path('api/v1/ai-prompts/', include('apps.ai_prompts.urls')),
 ]
 
 if settings.DEBUG:
