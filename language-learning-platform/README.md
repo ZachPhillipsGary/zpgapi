@@ -19,6 +19,7 @@ A comprehensive language learning platform featuring real-time AI tutoring, spac
 
 ### Technical Features
 - **Multimodal AI** - Gemini 2.0 Flash Nano + Veo3 for image/video analysis
+- **AI Prompt Management** - Database-stored prompts with versioning and A/B testing
 - **Authentication** - Supabase Auth for users, Django Admin for content management
 - **Real-time Communication** - WebSocket/WebRTC for audio streaming
 - **Background Jobs** - Celery with daily crons for content generation
@@ -219,8 +220,52 @@ The AI worker runs daily cron jobs to generate:
 - **Stories**: Contextual stories using concepts
 - **Quizzes**: Multiple choice, fill-in-blank, translation
 - **Flashcards**: Front/back with hints and examples
+- **Podcasts**: Personalized daily podcasts using smolagents + Anki algorithm
 
 On-demand generation also available via API.
+
+### 🎛️ AI Prompt Management
+
+**NEW!** All AI prompts are now managed in the database with full versioning and A/B testing capabilities.
+
+**Features:**
+- **Version Control**: Track changes to prompts over time
+- **A/B Testing**: Assign different prompt versions to users
+- **Analytics**: Monitor success rates, generation times, and token usage
+- **Admin Interface**: Beautiful Django admin UI for prompt management
+- **REST API**: Full API access for programmatic control
+
+**Usage Example:**
+```python
+from apps.ai_prompts.services import PromptContext
+
+# Use versioned prompts with automatic tracking
+with PromptContext('story_generation', user_id=user_id, ai_model='gemini-2.0-flash') as ctx:
+    prompt = ctx.get_prompt({
+        'concept_title': 'Greetings',
+        'language_name': 'French',
+        'difficulty': 1
+    })
+
+    result = gemini.generate_content(prompt)
+    ctx.mark_success(token_count=150)
+```
+
+**Prompt Types Supported:**
+- Content Generation (stories, quizzes, flashcards)
+- Podcast Segments (intro, vocab, dialogue, grammar, story, quiz, outro)
+- Tutoring Prompts (system prompts, context additions)
+- Multimodal Analysis
+
+**API Endpoints:**
+- `GET /api/v1/ai-prompts/templates/` - List all prompt templates
+- `GET /api/v1/ai-prompts/templates/by_type/{type}/` - Get specific template
+- `POST /api/v1/ai-prompts/versions/` - Create new version
+- `POST /api/v1/ai-prompts/versions/{id}/activate/` - Activate version
+- `POST /api/v1/ai-prompts/assignments/` - Assign version to user (A/B test)
+- `GET /api/v1/ai-prompts/usage-logs/stats/` - Get analytics
+
+📚 **[Full Documentation →](services/django-backend/apps/ai_prompts/README.md)**
 
 ### Multimodal Analysis (Veo3)
 

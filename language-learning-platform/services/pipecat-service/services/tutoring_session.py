@@ -2,12 +2,17 @@
 Tutoring Session Manager
 
 Manages real-time tutoring sessions using Pipecat and Gemini.
+Now integrated with AI Prompt Management System for versioned prompts.
 """
 import asyncio
 import uuid
 from datetime import datetime
 from typing import Dict, Optional, List
 from loguru import logger
+import sys
+
+# Add Django path to access prompt service
+sys.path.insert(0, '/home/user/zpgapi/language-learning-platform/services/django-backend')
 
 from pipecat.frames.frames import (
     AudioRawFrame,
@@ -25,6 +30,18 @@ from models.session import SessionCreate, TutoringSession
 from services.gemini_service import GeminiService
 from services.supabase_client import SupabaseClient
 from config import settings
+
+# Import Django prompt service
+try:
+    import django
+    import os
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.base')
+    django.setup()
+    from apps.ai_prompts.services import get_prompt_service
+    PROMPT_SERVICE_AVAILABLE = True
+except Exception as e:
+    logger.warning(f"Django prompt service not available: {e}")
+    PROMPT_SERVICE_AVAILABLE = False
 
 
 class TutoringSessionManager:
@@ -205,9 +222,67 @@ class TutoringSessionManager:
         }
 
     async def _get_system_prompt(self, session: TutoringSession) -> str:
-        """Generate system prompt based on session configuration."""
+        """Generate system prompt based on session configuration using versioned prompts."""
         language_name = settings.SUPPORTED_LANGUAGES[session.language_code]["name"]
 
+        # Use versioned prompts if available, fallback to hardcoded
+        if PROMPT_SERVICE_AVAILABLE:
+            try:
+                service = get_prompt_service()
+
+                # Get base system prompt
+                base_prompt_version = service.get_prompt_version(
+                    'tutoring_system',
+                    user_id=session.user_id
+                )
+
+                if base_prompt_version:
+                    base_prompt = service.render_prompt(base_prompt_version, {
+                        'language_name': language_name,
+                        'session_type': session.session_type,
+                        'concept_title': '',
+                        'concept_description': ''
+                    })
+                else:
+                    # Fallback to hardcoded
+                    base_prompt = self._get_fallback_system_prompt(language_name, session.session_type)
+
+                # Add context-specific additions if available
+                if session.concept_id:
+                    concept_data = await self.supabase.get_concept(session.concept_id)
+                    if concept_data:
+                        context_version = service.get_prompt_version(
+                            'tutoring_context',
+                            user_id=session.user_id
+                        )
+
+                        if context_version:
+                            # Determine focus area based on session type
+                            focus_map = {
+                                'pronunciation': 'PRONUNCIATION',
+                                'grammar_practice': 'GRAMMAR',
+                                'conversation': 'CONVERSATION',
+                                'vocabulary': 'VOCABULARY'
+                            }
+                            focus_area = focus_map.get(session.session_type, 'GENERAL')
+
+                            context_prompt = service.render_prompt(context_version, {
+                                'focus_area': focus_area,
+                                'concept_title': concept_data.get('title', ''),
+                                'concept_description': concept_data.get('description', '')
+                            })
+                            base_prompt += "\n\n" + context_prompt
+
+                return base_prompt
+
+            except Exception as e:
+                logger.error(f"Error using prompt service: {e}, falling back to hardcoded")
+                return self._get_fallback_system_prompt(language_name, session.session_type)
+        else:
+            return self._get_fallback_system_prompt(language_name, session.session_type)
+
+    def _get_fallback_system_prompt(self, language_name: str, session_type: str) -> str:
+        """Fallback to hardcoded system prompt if prompt service is unavailable."""
         base_prompt = f"""You are an expert {language_name} language tutor. Your goal is to help the student improve their {language_name} skills through natural conversation.
 
 Guidelines:
@@ -219,7 +294,7 @@ Guidelines:
 6. Focus on pronunciation, grammar, and natural expression
 """
 
-        if session.session_type == "pronunciation":
+        if session_type == "pronunciation":
             base_prompt += """
 Special focus: PRONUNCIATION
 - Listen carefully to how the student pronounces words
@@ -228,7 +303,7 @@ Special focus: PRONUNCIATION
 - Practice difficult sounds repeatedly
 - Give examples of correct pronunciation
 """
-        elif session.session_type == "grammar_practice":
+        elif session_type == "grammar_practice":
             base_prompt += """
 Special focus: GRAMMAR
 - Identify and correct grammatical errors
@@ -236,17 +311,6 @@ Special focus: GRAMMAR
 - Provide examples of correct usage
 - Practice specific grammar points
 - Build on previous corrections
-"""
-
-        # Add concept-specific context if available
-        if session.concept_id:
-            concept_data = await self.supabase.get_concept(session.concept_id)
-            if concept_data:
-                base_prompt += f"""
-Current lesson focus: {concept_data.get('title')}
-Description: {concept_data.get('description')}
-
-Focus this session on helping the student practice and understand this concept.
 """
 
         return base_prompt

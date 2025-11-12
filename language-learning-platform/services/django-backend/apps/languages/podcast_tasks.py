@@ -6,6 +6,7 @@ Generates daily personalized language learning podcasts that:
 2. Use smolagents to orchestrate multi-step generation
 3. Use Gemini thinking models for script composition
 4. Generate audio with Gemini TTS
+5. Now integrated with AI Prompt Management System for versioned prompts
 """
 from celery import shared_task
 from django.utils import timezone
@@ -19,6 +20,7 @@ sys.path.append('/home/user/zpgapi/language-learning-platform/services/pipecat-s
 from .podcast_models import PodcastEpisode, PodcastSegment, PodcastGenerationJob
 from .models import Concept, Word, UserConceptProgress, SpacedRepetitionCard
 from apps.spaced_repetition.anki_algorithm import AnkiAlgorithm
+from apps.ai_prompts.services import PromptContext, get_prompt_service
 
 logger = logging.getLogger(__name__)
 
@@ -101,7 +103,7 @@ def generate_personalized_podcast(user_id: str, language_id: str, target_duratio
         @tool
         def generate_script_segment(segment_type: str, concept: dict, difficulty: int) -> dict:
             """
-            Generate a podcast script segment using Gemini thinking.
+            Generate a podcast script segment using Gemini thinking with versioned prompts.
 
             Args:
                 segment_type: Type of segment (vocabulary, dialogue, story, etc.)
@@ -114,27 +116,38 @@ def generate_personalized_podcast(user_id: str, language_id: str, target_duratio
             gemini = GeminiService()
             genai.configure(api_key=gemini.api_key)
 
-            # Use Gemini thinking model for script composition
-            model = genai.GenerativeModel('gemini-2.0-flash-thinking-exp-1219')
+            # Map segment_type to prompt_type
+            prompt_type_map = {
+                'introduction': 'podcast_intro',
+                'vocabulary': 'podcast_vocab',
+                'dialogue': 'podcast_dialogue',
+                'grammar': 'podcast_grammar',
+                'story': 'podcast_story',
+                'quiz': 'podcast_quiz',
+                'outro': 'podcast_outro'
+            }
+            prompt_type = prompt_type_map.get(segment_type.lower(), 'podcast_vocab')
 
-            prompt = f"""You are a language learning podcast script writer. Create an engaging {segment_type} segment.
+            # Use versioned prompt from prompt service
+            words_str = ', '.join([w['word'] for w in concept.get('words', [])])
 
-Concept: {concept['title']}
-Description: {concept['description']}
-Difficulty Level: {difficulty}/10
-Words to include: {', '.join([w['word'] for w in concept.get('words', [])])}
+            # Use PromptContext for versioned prompts
+            with PromptContext(prompt_type, user_id=user_id, ai_model='gemini-2.0-flash-thinking') as ctx:
+                prompt = ctx.get_prompt({
+                    'segment_type': segment_type,
+                    'concept_title': concept['title'],
+                    'concept_description': concept['description'],
+                    'difficulty': difficulty,
+                    'words': words_str
+                })
 
-Create a script that:
-1. Is conversational and engaging
-2. Explains the concept clearly
-3. Includes examples and context
-4. Uses the target vocabulary naturally
-5. Is appropriate for the difficulty level
-6. Lasts approximately 2-3 minutes when spoken
+                # Use Gemini thinking model for script composition
+                model = genai.GenerativeModel('gemini-2.0-flash-thinking-exp-1219')
+                response = model.generate_content(prompt)
 
-Format: Write the script as natural dialogue between a friendly tutor and a learner."""
+                # Mark as successful
+                ctx.mark_success()
 
-            response = model.generate_content(prompt)
             return {
                 'segment_type': segment_type,
                 'script': response.text,

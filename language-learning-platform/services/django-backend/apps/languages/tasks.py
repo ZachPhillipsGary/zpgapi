@@ -2,45 +2,65 @@
 Celery Tasks for AI Content Generation
 
 These tasks run in the background to generate stories, quizzes, and flashcards.
+Now integrated with AI Prompt Management System for versioning and A/B testing.
 """
 from celery import shared_task
 from django.utils import timezone
 from datetime import timedelta
 import logging
 import sys
+import time
 sys.path.append('/home/user/zpgapi/language-learning-platform/services/pipecat-service')
 
 from .models import (
     Language, Concept, Story, Quiz, Flashcard, AIGenerationJob,
     TutoringSession
 )
+from apps.ai_prompts.services import PromptContext
 
 logger = logging.getLogger(__name__)
 
 
 @shared_task(name='apps.languages.tasks.generate_story')
-def generate_story(concept_id: str):
+def generate_story(concept_id: str, user_id: str = None):
     """
-    Generate a story for a specific concept using Gemini AI.
+    Generate a story for a specific concept using Gemini AI with prompt versioning.
 
     Args:
         concept_id: UUID of the concept
+        user_id: Optional user ID for A/B testing different prompts
     """
     try:
         from services.gemini_service import GeminiService
+        import google.generativeai as genai
 
         concept = Concept.objects.get(id=concept_id)
         gemini = GeminiService()
 
         logger.info(f"Generating story for concept: {concept.title}")
 
-        # Generate story
-        result = gemini.generate_story(
-            concept_title=concept.title,
-            concept_description=concept.description,
-            language_code=concept.language.code,
-            difficulty=concept.difficulty_level
-        )
+        # Use PromptContext for versioned prompts and automatic tracking
+        with PromptContext('story_generation', user_id=user_id, ai_model='gemini-2.0-flash') as ctx:
+            # Get versioned prompt with variables
+            prompt = ctx.get_prompt({
+                'concept_title': concept.title,
+                'concept_description': concept.description,
+                'language_name': concept.language.name,
+                'difficulty': concept.difficulty_level
+            })
+
+            # Generate content using the versioned prompt
+            start_time = time.time()
+            result = gemini.generate_story(
+                concept_title=concept.title,
+                concept_description=concept.description,
+                language_code=concept.language.code,
+                difficulty=concept.difficulty_level
+            )
+            generation_time = time.time() - start_time
+
+            # Mark as successful (prompt usage will be logged automatically)
+            ctx.mark_success()
 
         # Create story record
         story = Story.objects.create(
@@ -50,10 +70,14 @@ def generate_story(concept_id: str):
             difficulty=concept.difficulty_level,
             estimated_reading_time=result.get('reading_time', 5),
             is_ai_generated=True,
-            metadata={'ai_model': result.get('ai_model', 'gemini-2.0-flash-exp')}
+            metadata={
+                'ai_model': result.get('ai_model', 'gemini-2.0-flash'),
+                'generation_time': generation_time,
+                'prompt_tracked': True
+            }
         )
 
-        logger.info(f"Successfully generated story {story.id} for concept {concept.title}")
+        logger.info(f"Successfully generated story {story.id} for concept {concept.title} in {generation_time:.2f}s")
         return str(story.id)
 
     except Concept.DoesNotExist:
@@ -65,13 +89,14 @@ def generate_story(concept_id: str):
 
 
 @shared_task(name='apps.languages.tasks.generate_quiz')
-def generate_quiz(concept_id: str, question_count: int = 5):
+def generate_quiz(concept_id: str, question_count: int = 5, user_id: str = None):
     """
-    Generate a quiz for a specific concept using Gemini AI.
+    Generate a quiz for a specific concept using Gemini AI with prompt versioning.
 
     Args:
         concept_id: UUID of the concept
         question_count: Number of questions to generate
+        user_id: Optional user ID for A/B testing different prompts
     """
     try:
         from services.gemini_service import GeminiService
@@ -81,13 +106,28 @@ def generate_quiz(concept_id: str, question_count: int = 5):
 
         logger.info(f"Generating quiz for concept: {concept.title}")
 
-        # Generate quiz
-        result = gemini.generate_quiz(
-            concept_title=concept.title,
-            concept_description=concept.description,
-            language_code=concept.language.code,
-            question_count=question_count
-        )
+        # Use PromptContext for versioned prompts and automatic tracking
+        with PromptContext('quiz_generation', user_id=user_id, ai_model='gemini-2.0-flash') as ctx:
+            # Get versioned prompt with variables
+            prompt = ctx.get_prompt({
+                'concept_title': concept.title,
+                'concept_description': concept.description,
+                'language_name': concept.language.name,
+                'question_count': question_count
+            })
+
+            # Generate quiz using the versioned prompt
+            start_time = time.time()
+            result = gemini.generate_quiz(
+                concept_title=concept.title,
+                concept_description=concept.description,
+                language_code=concept.language.code,
+                question_count=question_count
+            )
+            generation_time = time.time() - start_time
+
+            # Mark as successful
+            ctx.mark_success()
 
         # Create quiz record
         quiz = Quiz.objects.create(
@@ -96,10 +136,14 @@ def generate_quiz(concept_id: str, question_count: int = 5):
             description=f"Test your knowledge of {concept.title}",
             questions=result.get('questions', []),
             passing_score=70,
-            is_ai_generated=True
+            is_ai_generated=True,
+            metadata={
+                'generation_time': generation_time,
+                'prompt_tracked': True
+            }
         )
 
-        logger.info(f"Successfully generated quiz {quiz.id} for concept {concept.title}")
+        logger.info(f"Successfully generated quiz {quiz.id} for concept {concept.title} in {generation_time:.2f}s")
         return str(quiz.id)
 
     except Concept.DoesNotExist:
@@ -111,13 +155,14 @@ def generate_quiz(concept_id: str, question_count: int = 5):
 
 
 @shared_task(name='apps.languages.tasks.generate_flashcards')
-def generate_flashcards(concept_id: str, count: int = 10):
+def generate_flashcards(concept_id: str, count: int = 10, user_id: str = None):
     """
-    Generate flashcards for a specific concept using Gemini AI.
+    Generate flashcards for a specific concept using Gemini AI with prompt versioning.
 
     Args:
         concept_id: UUID of the concept
         count: Number of flashcards to generate
+        user_id: Optional user ID for A/B testing different prompts
     """
     try:
         from services.gemini_service import GeminiService
@@ -133,13 +178,33 @@ def generate_flashcards(concept_id: str, count: int = 10):
 
         logger.info(f"Generating {count} flashcards for concept: {concept.title}")
 
-        # Generate flashcards
-        result = gemini.generate_flashcards(
-            concept_title=concept.title,
-            words=[{'word': w.word, 'translation': w.translation} for w in words],
-            language_code=concept.language.code,
-            count=min(count, len(words))
-        )
+        # Prepare words text for prompt
+        words_text = "\n".join([
+            f"{w.word} - {w.translation}"
+            for w in words[:count]
+        ])
+
+        # Use PromptContext for versioned prompts and automatic tracking
+        with PromptContext('flashcard_generation', user_id=user_id, ai_model='gemini-2.0-flash') as ctx:
+            # Get versioned prompt with variables
+            prompt = ctx.get_prompt({
+                'concept_title': concept.title,
+                'words_text': words_text,
+                'count': min(count, len(words))
+            })
+
+            # Generate flashcards using the versioned prompt
+            start_time = time.time()
+            result = gemini.generate_flashcards(
+                concept_title=concept.title,
+                words=[{'word': w.word, 'translation': w.translation} for w in words],
+                language_code=concept.language.code,
+                count=min(count, len(words))
+            )
+            generation_time = time.time() - start_time
+
+            # Mark as successful
+            ctx.mark_success()
 
         # Create flashcard records
         flashcard_ids = []
@@ -152,11 +217,15 @@ def generate_flashcards(concept_id: str, count: int = 10):
                 back=f"{word.translation}\n\n{word.example_sentence or ''}",
                 card_type='basic',
                 hint=word.pronunciation or '',
-                is_ai_generated=True
+                is_ai_generated=True,
+                metadata={
+                    'generation_time': generation_time,
+                    'prompt_tracked': True
+                }
             )
             flashcard_ids.append(str(flashcard.id))
 
-        logger.info(f"Successfully generated {len(flashcard_ids)} flashcards for concept {concept.title}")
+        logger.info(f"Successfully generated {len(flashcard_ids)} flashcards for concept {concept.title} in {generation_time:.2f}s")
         return flashcard_ids
 
     except Concept.DoesNotExist:
