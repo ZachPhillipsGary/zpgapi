@@ -19,6 +19,8 @@ pyjwt==2.8.0
 # AI & ML
 google-generativeai==0.3.2
 openai==1.7.2
+smolagents==0.1.0
+huggingface-hub==0.20.0
 
 # Task Queue
 celery==5.3.4

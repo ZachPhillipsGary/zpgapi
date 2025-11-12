@@ -35,11 +35,9 @@ INSTALLED_APPS = [
     'django_celery_beat',
 
     # Local apps
+    'apps.core',
     'apps.languages',
-    'apps.concepts',
-    'apps.spaced_repetition',
-    'apps.ai_content',
-    'apps.tutoring',
+    'apps.learning_plans',
     'apps.users',
 ]
 

@@ -3,7 +3,13 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
+from .routers import router
+
+# Customize admin site
+admin.site.site_header = "MALA Language Learning Admin"
+admin.site.site_title = "MALA Admin"
+admin.site.index_title = "Language Learning Platform Administration"
 
 urlpatterns = [
     # Admin
@@ -12,14 +18,13 @@ urlpatterns = [
     # API Documentation
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 
-    # API endpoints
-    path('api/v1/languages/', include('apps.languages.urls')),
-    path('api/v1/concepts/', include('apps.concepts.urls')),
-    path('api/v1/spaced-repetition/', include('apps.spaced_repetition.urls')),
-    path('api/v1/ai-content/', include('apps.ai_content.urls')),
-    path('api/v1/tutoring/', include('apps.tutoring.urls')),
-    path('api/v1/users/', include('apps.users.urls')),
+    # API endpoints (auto-registered via router)
+    path('api/v1/', include(router.urls)),
+
+    # Auth endpoints
+    path('api/v1/auth/', include('apps.users.urls')),
 ]
 
 if settings.DEBUG:

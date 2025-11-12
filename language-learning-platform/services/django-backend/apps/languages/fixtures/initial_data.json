@@ -1,0 +1,101 @@
+[
+  {
+    "model": "languages.language",
+    "pk": "00000000-0000-0000-0000-000000000001",
+    "fields": {
+      "name": "English",
+      "code": "en",
+      "native_name": "English",
+      "is_active": true,
+      "created_at": "2025-01-12T00:00:00Z",
+      "updated_at": "2025-01-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "languages.language",
+    "pk": "00000000-0000-0000-0000-000000000002",
+    "fields": {
+      "name": "French",
+      "code": "fr",
+      "native_name": "Français",
+      "is_active": true,
+      "created_at": "2025-01-12T00:00:00Z",
+      "updated_at": "2025-01-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "languages.language",
+    "pk": "00000000-0000-0000-0000-000000000003",
+    "fields": {
+      "name": "Mandarin (Traditional)",
+      "code": "zh-TW",
+      "native_name": "中文（繁體）",
+      "is_active": true,
+      "created_at": "2025-01-12T00:00:00Z",
+      "updated_at": "2025-01-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "languages.concept",
+    "pk": "00000000-0000-0000-0001-000000000001",
+    "fields": {
+      "language": "00000000-0000-0000-0000-000000000002",
+      "title": "Basic Greetings",
+      "description": "Essential French greetings for everyday use",
+      "concept_type": "phrase",
+      "difficulty_level": 1,
+      "category": "greetings",
+      "is_published": true,
+      "created_at": "2025-01-12T00:00:00Z",
+      "updated_at": "2025-01-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "languages.word",
+    "pk": "00000000-0000-0001-0001-000000000001",
+    "fields": {
+      "concept": "00000000-0000-0000-0001-000000000001",
+      "word": "Bonjour",
+      "translation": "Hello / Good day",
+      "pronunciation": "bɔ̃ʒuʁ",
+      "part_of_speech": "interjection",
+      "example_sentence": "Bonjour! Comment allez-vous?",
+      "example_translation": "Hello! How are you?",
+      "frequency_rank": 10,
+      "created_at": "2025-01-12T00:00:00Z",
+      "updated_at": "2025-01-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "languages.word",
+    "pk": "00000000-0000-0001-0001-000000000002",
+    "fields": {
+      "concept": "00000000-0000-0000-0001-000000000001",
+      "word": "Merci",
+      "translation": "Thank you",
+      "pronunciation": "mɛʁsi",
+      "part_of_speech": "interjection",
+      "example_sentence": "Merci beaucoup!",
+      "example_translation": "Thank you very much!",
+      "frequency_rank": 5,
+      "created_at": "2025-01-12T00:00:00Z",
+      "updated_at": "2025-01-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "languages.word",
+    "pk": "00000000-0000-0001-0001-000000000003",
+    "fields": {
+      "concept": "00000000-0000-0000-0001-000000000001",
+      "word": "Au revoir",
+      "translation": "Goodbye",
+      "pronunciation": "o ʁəvwaʁ",
+      "part_of_speech": "interjection",
+      "example_sentence": "Au revoir et à bientôt!",
+      "example_translation": "Goodbye and see you soon!",
+      "frequency_rank": 15,
+      "created_at": "2025-01-12T00:00:00Z",
+      "updated_at": "2025-01-12T00:00:00Z"
+    }
+  }
+]

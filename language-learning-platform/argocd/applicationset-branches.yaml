@@ -1,0 +1,72 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: mala-feature-branches
+  namespace: argocd
+spec:
+  generators:
+  # Generate applications for feature branches
+  - git:
+      repoURL: https://github.com/ZachPhillipsGary/zpgapi.git
+      revision: HEAD
+      directories:
+      - path: language-learning-platform/k8s/overlays/*
+      - path: language-learning-platform/k8s/overlays/dev
+        exclude: true
+      - path: language-learning-platform/k8s/overlays/prod
+        exclude: true
+
+  # Supabase branch preview integration
+  - pullRequest:
+      github:
+        owner: ZachPhillipsGary
+        repo: zpgapi
+        tokenRef:
+          secretName: github-token
+          key: token
+        labels:
+        - preview
+      requeueAfterSeconds: 30
+
+  template:
+    metadata:
+      name: 'mala-{{branch}}-{{number}}'
+      annotations:
+        # Link to Supabase preview branch
+        supabase-preview-url: 'https://{{branch}}-{{number}}.supabase.co'
+        argocd-image-updater.argoproj.io/image-list: 'django-backend, bun-api, pipecat-service'
+        argocd-image-updater.argoproj.io/write-back-method: git
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/ZachPhillipsGary/zpgapi.git
+        targetRevision: '{{branch}}'
+        path: language-learning-platform/k8s/overlays/dev
+        kustomize:
+          namePrefix: '{{branch}}-'
+          commonAnnotations:
+            branch: '{{branch}}'
+            pr-number: '{{number}}'
+
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: 'language-learning-{{branch}}'
+
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+        - CreateNamespace=true
+        - PruneLast=true
+
+      # Supabase environment variables per branch
+      env:
+      - name: SUPABASE_URL
+        value: 'https://{{branch}}-{{number}}.supabase.co'
+      - name: DATABASE_URL
+        valueFrom:
+          secretKeyRef:
+            name: supabase-{{branch}}
+            key: database_url
