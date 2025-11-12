@@ -35,7 +35,7 @@ spec:
       annotations:
         # Link to Supabase preview branch
         supabase-preview-url: 'https://{{branch}}-{{number}}.supabase.co'
-        argocd-image-updater.argoproj.io/image-list: 'django-backend, bun-api, pipecat-service'
+        argocd-image-updater.argoproj.io/image-list: 'django-backend, pipecat-service'
         argocd-image-updater.argoproj.io/write-back-method: git
     spec:
       project: default

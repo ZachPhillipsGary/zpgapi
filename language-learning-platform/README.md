@@ -29,35 +29,37 @@ A comprehensive language learning platform featuring real-time AI tutoring, spac
 ## 🏗️ Architecture
 
 ```
-┌─────────────────┐       ┌──────────────────┐       ┌─────────────────┐
-│   React Web     │◄─────►│   Bun API        │◄─────►│   Supabase DB   │
-│  (TypeScript)   │       │  (TypeScript)    │       │  (PostgreSQL)   │
-└─────────────────┘       └──────────────────┘       └─────────────────┘
-                                    │
-                                    ▼
-                          ┌──────────────────┐
-                          │  Django Backend  │
-                          │ (Admin + Tasks)  │
-                          └──────────────────┘
-                                    │
-                    ┌───────────────┼───────────────┐
-                    ▼               ▼               ▼
-          ┌─────────────┐  ┌──────────────┐  ┌──────────────┐
-          │   Pipecat   │  │  AI Worker   │  │    Redis     │
-          │   Service   │  │   (Gemini)   │  │   (Cache)    │
-          └─────────────┘  └──────────────┘  └──────────────┘
+┌─────────────────┐
+│   React Web     │
+│  (TypeScript)   │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐       ┌──────────────────┐
+│ Django Backend  │◄─────►│   Supabase DB    │
+│  (REST API +    │       │  (PostgreSQL)    │
+│  Admin + Tasks) │       └──────────────────┘
+└────────┬────────┘
+         │
+         ├────────────────┬──────────────┐
+         ▼                ▼              ▼
+┌─────────────┐  ┌──────────────┐  ┌──────────────┐
+│   Pipecat   │  │ Celery Worker│  │    Redis     │
+│   Service   │  │   (Gemini)   │  │   (Cache)    │
+│  (Audio)    │  │              │  │              │
+└─────────────┘  └──────────────┘  └──────────────┘
 ```
 
 ### Services
 
 | Service | Technology | Port | Purpose |
 |---------|-----------|------|---------|
-| **Bun API** | TypeScript + Hono | 3001 | Fast REST API for content delivery |
-| **Django Backend** | Python + Django | 8000 | Admin interface + content management |
-| **Pipecat Service** | Python + Pipecat | 8001 | Real-time audio tutoring |
-| **AI Worker** | Python + Celery | - | Background content generation |
-| **PostgreSQL** | Supabase | 5432 | Main database |
-| **Redis** | Redis | 6379 | Cache + job queue |
+| **Django Backend** | Python + Django + DRF | 8000 | Complete REST API + Admin + Swagger docs |
+| **Pipecat Service** | Python + Pipecat | 8001 | Real-time audio tutoring (WebRTC) |
+| **Celery Worker** | Python + Celery | - | Background AI content generation |
+| **Celery Beat** | Python + Celery Beat | - | Scheduled tasks (daily podcasts, etc.) |
+| **PostgreSQL** | Supabase | 5432 | Main database with RLS |
+| **Redis** | Redis | 6379 | Cache + task queue |
 
 ---
 
@@ -96,10 +98,11 @@ supabase db push
 
 ### 4. Access Services
 
-- **Bun API**: http://localhost:3001
+- **Django API**: http://localhost:8000/api/v1/
 - **Django Admin**: http://localhost:8000/admin
+- **Swagger Docs**: http://localhost:8000/api/docs/
+- **ReDoc**: http://localhost:8000/api/redoc/
 - **Pipecat Service**: http://localhost:8001
-- **API Docs**: http://localhost:8000/api/docs
 
 ---
 

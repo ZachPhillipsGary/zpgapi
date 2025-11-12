@@ -14,8 +14,6 @@ configMapGenerator:
       - DEBUG=True
 
 replicas:
-  - name: bun-api
-    count: 1
   - name: django-backend
     count: 1
   - name: pipecat-service

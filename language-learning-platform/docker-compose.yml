@@ -58,22 +58,6 @@ services:
         condition: service_healthy
     command: python manage.py runserver 0.0.0.0:8000
 
-  # Bun API
-  bun-api:
-    build:
-      context: ./services/bun-api
-      dockerfile: Dockerfile
-    container_name: language-learning-bun-api
-    ports:
-      - "3001:3001"
-    environment:
-      - PORT=3001
-    env_file:
-      - .env
-    volumes:
-      - ./services/bun-api:/app
-    command: bun run dev
-
   # Pipecat Service
   pipecat-service:
     build:
