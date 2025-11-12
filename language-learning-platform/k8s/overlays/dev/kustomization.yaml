@@ -1,0 +1,22 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+bases:
+  - ../../base
+
+namePrefix: dev-
+
+configMapGenerator:
+  - name: language-learning-config
+    behavior: merge
+    literals:
+      - DJANGO_ENV=development
+      - DEBUG=True
+
+replicas:
+  - name: bun-api
+    count: 1
+  - name: django-backend
+    count: 1
+  - name: pipecat-service
+    count: 1

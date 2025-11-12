@@ -1,0 +1,30 @@
+{
+  "name": "language-learning-bun-api",
+  "version": "1.0.0",
+  "description": "Fast TypeScript API for language learning platform",
+  "type": "module",
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "start": "bun src/index.ts",
+    "build": "bun build src/index.ts --outdir dist --target bun",
+    "test": "bun test",
+    "lint": "eslint src --ext .ts",
+    "format": "prettier --write 'src/**/*.ts'"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.3",
+    "hono": "^3.12.0",
+    "zod": "^3.22.4",
+    "@hono/zod-validator": "^0.2.1",
+    "ioredis": "^5.3.2",
+    "date-fns": "^3.0.6"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0",
+    "eslint": "^8.56.0",
+    "prettier": "^3.2.4",
+    "typescript": "^5.3.3"
+  }
+}

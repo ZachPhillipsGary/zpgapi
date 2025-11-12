@@ -1,0 +1,124 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bun-api
+  namespace: language-learning
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: bun-api
+  template:
+    metadata:
+      labels:
+        app: bun-api
+    spec:
+      containers:
+      - name: bun-api
+        image: language-learning/bun-api:latest
+        ports:
+        - containerPort: 3001
+        envFrom:
+        - configMapRef:
+            name: language-learning-config
+        - secretRef:
+            name: language-learning-secrets
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-backend
+  namespace: language-learning
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: django-backend
+  template:
+    metadata:
+      labels:
+        app: django-backend
+    spec:
+      containers:
+      - name: django
+        image: language-learning/django-backend:latest
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - configMapRef:
+            name: language-learning-config
+        - secretRef:
+            name: language-learning-secrets
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pipecat-service
+  namespace: language-learning
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: pipecat-service
+  template:
+    metadata:
+      labels:
+        app: pipecat-service
+    spec:
+      containers:
+      - name: pipecat
+        image: language-learning/pipecat-service:latest
+        ports:
+        - containerPort: 8001
+        envFrom:
+        - configMapRef:
+            name: language-learning-config
+        - secretRef:
+            name: language-learning-secrets
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "1000m"
+          limits:
+            memory: "2Gi"
+            cpu: "2000m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: language-learning
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"

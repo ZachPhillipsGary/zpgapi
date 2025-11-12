@@ -1,0 +1,139 @@
+version: '3.8'
+
+services:
+  # PostgreSQL (Supabase uses PostgreSQL)
+  postgres:
+    image: supabase/postgres:15.1.0.117
+    container_name: language-learning-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: language_learning
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./supabase/migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    container_name: language-learning-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # Django Backend
+  django-backend:
+    build:
+      context: ./services/django-backend
+      dockerfile: Dockerfile
+    container_name: language-learning-django
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/language_learning
+      - REDIS_URL=redis://redis:6379/0
+      - DJANGO_ENV=development
+      - DEBUG=True
+    env_file:
+      - .env
+    volumes:
+      - ./services/django-backend:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: python manage.py runserver 0.0.0.0:8000
+
+  # Bun API
+  bun-api:
+    build:
+      context: ./services/bun-api
+      dockerfile: Dockerfile
+    container_name: language-learning-bun-api
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+    env_file:
+      - .env
+    volumes:
+      - ./services/bun-api:/app
+    command: bun run dev
+
+  # Pipecat Service
+  pipecat-service:
+    build:
+      context: ./services/pipecat-service
+      dockerfile: Dockerfile
+    container_name: language-learning-pipecat
+    ports:
+      - "8001:8001"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8001
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/language_learning
+      - REDIS_URL=redis://redis:6379/0
+    env_file:
+      - .env
+    volumes:
+      - ./services/pipecat-service:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: python main.py
+
+  # Celery Worker (for background jobs)
+  celery-worker:
+    build:
+      context: ./services/django-backend
+      dockerfile: Dockerfile
+    container_name: language-learning-celery
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/language_learning
+      - REDIS_URL=redis://redis:6379/0
+    env_file:
+      - .env
+    volumes:
+      - ./services/django-backend:/app
+    depends_on:
+      - redis
+      - postgres
+    command: celery -A config worker -l info
+
+  # Celery Beat (for scheduled tasks)
+  celery-beat:
+    build:
+      context: ./services/django-backend
+      dockerfile: Dockerfile
+    container_name: language-learning-celery-beat
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/language_learning
+      - REDIS_URL=redis://redis:6379/0
+    env_file:
+      - .env
+    volumes:
+      - ./services/django-backend:/app
+    depends_on:
+      - redis
+      - postgres
+    command: celery -A config beat -l info
+
+volumes:
+  postgres_data:
+  redis_data:

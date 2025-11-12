@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: language-learning-config
+  namespace: language-learning
+data:
+  DJANGO_ENV: "production"
+  REDIS_URL: "redis://redis:6379/0"
+  ALLOWED_ORIGINS: "https://yourdomain.com"
